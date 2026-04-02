@@ -1,24 +1,40 @@
 package edu.uga.cs.countryquiz;
 
 import android.os.Bundle;
+import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
+        InitialDbHelper initailDbHelper = new InitialDbHelper(this);
+        initailDbHelper.copyDatabaseIfNeeded();
+
+        CountryQuizDbHelper dbHelper = CountryQuizDbHelper.getInstance(this);
+
+        ArrayList<Country> countries = dbHelper.getAllCountries();
+        ArrayList<QuizResult> resultsBefore = dbHelper.getAllQuizResults();
+        boolean inserted = dbHelper.insertQuizResult("2026-04-01 18:00", 4);
+        ArrayList<QuizResult> resultsAfter = dbHelper.getAllQuizResults();
+
+        String message = "Countries loaded: " + countries.size()
+                + "\nResults before insert: " + resultsBefore.size()
+                + "\nInsert success: " + inserted
+                + "\nResults after insert: " + resultsAfter.size();
+
+        if (!countries.isEmpty()) {
+            message += "\nFirst country: " + countries.get(0).getCountryName();
+        }
+
+        TextView textView = new TextView(this);
+        textView.setText(message);
+        textView.setTextSize(18f);
+        setContentView(textView);
     }
 }
