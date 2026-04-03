@@ -1,8 +1,8 @@
 package edu.uga.cs.countryquiz;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 
-public class Question {
+public class Question implements Serializable {
     private String countryName;
     private String capital;
     private String otherCity1;

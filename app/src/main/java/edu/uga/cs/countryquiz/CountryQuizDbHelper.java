@@ -42,8 +42,9 @@ public class CountryQuizDbHelper extends SQLiteOpenHelper {
     private static CountryQuizDbHelper helperInstance;
 
     // SQL statement to create countries table
+    // SQL statement to create countries table
     private static final String CREATE_COUNTRIES =
-            "create table " + TABLE_COUNTRIES + " ("
+            "create table if not exists " + TABLE_COUNTRIES + " ("
                     + COUNTRIES_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + COUNTRIES_COLUMN_NAME + " TEXT NOT NULL, "
                     + COUNTRIES_COLUMN_CAPITAL + " TEXT NOT NULL, "
@@ -53,12 +54,11 @@ public class CountryQuizDbHelper extends SQLiteOpenHelper {
 
     // SQL statement to create results table
     private static final String CREATE_RESULTS =
-            "create table " + TABLE_RESULTS + " ("
+            "create table if not exists " + TABLE_RESULTS + " ("
                     + RESULTS_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + RESULTS_COLUMN_DATE + " TEXT NOT NULL, "
                     + RESULTS_COLUMN_SCORE + " INTEGER NOT NULL"
                     + ")";
-
     /**
      * Private constructor so no other class can directly create
      * a new helper object.
