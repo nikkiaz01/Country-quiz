@@ -14,7 +14,7 @@
         android:layout_marginBottom="34dp"
         android:paddingLeft="10dp"
         android:paddingEnd="10dp"
-        android:text="a simple quiz application, called the Country Quiz, testing the user’s knowledge of countries, their capitals, and continents on which they are locate"
+        android:text="Country Quiz App is an interactive  application designed to test a user's knowledge of world capitals through six-question quizzes. Take as many quizzes as you want and see how you have improved by looking at your quiz history. Make sure to answer the question before swiping on. Goodluck!"
         android:textAlignment="center"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/button"

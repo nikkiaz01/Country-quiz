@@ -153,6 +153,7 @@ public class QuizActivity extends AppCompatActivity  {
                 if (position == 6) { // able to navigate wherever once at end
                     pager.setUserInputEnabled(true);
                     if (!isSaved && currentQuiz != null) {
+                        currentQuiz.setCurrentQuestion(position);
                         currentQuiz.setScore(getTotalScore());
                         new SaveQuizTask().execute(currentQuiz); //save quiz in db
                         isSaved = true;

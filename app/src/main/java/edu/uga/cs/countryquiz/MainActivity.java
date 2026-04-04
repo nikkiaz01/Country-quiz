@@ -31,15 +31,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // This ensures the file is moved from assets to the phone BEFORE the quiz starts
-        new InitialDbHelper(this).copyDatabaseIfNeeded();
-
         //to start a new quiz
         button2 = findViewById(R.id.button2);
         button2.setOnClickListener(v -> {
             Intent intent = new Intent(this, QuizActivity.class);
             startActivity(intent);
         });
+        // This ensures the file is moved from assets to the phone BEFORE the quiz starts
+        button2.setEnabled(false);
+        new DatabaseCopyTask().execute();
 
         //to handle going to prior quizzes view
         historyBtn = findViewById(R.id.button);
@@ -47,5 +47,22 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
             startActivity(intent);
         });
+    }
+
+    /**
+     * To handle the background copying of the pre-populated
+     * SQLite database from the assets folder to internal storage.
+     */
+    private class DatabaseCopyTask extends AsyncTask<Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            new InitialDbHelper(MainActivity.this).copyDatabaseIfNeeded();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            button2.setEnabled(true);
+        }
     }
 }
