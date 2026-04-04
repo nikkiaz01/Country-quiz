@@ -16,6 +16,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     Button button2;
+    Button historyBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,9 +26,17 @@ public class MainActivity extends AppCompatActivity {
         // This ensures the file is moved from assets to the phone BEFORE the quiz starts
         new InitialDbHelper(this).copyDatabaseIfNeeded();
 
+        //to start a new quiz
         button2 = findViewById(R.id.button2);
         button2.setOnClickListener(v -> {
             Intent intent = new Intent(this, QuizActivity.class);
+            startActivity(intent);
+        });
+
+        //to handle going to prior quizzes view
+        historyBtn = findViewById(R.id.button);
+        historyBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
             startActivity(intent);
         });
     }

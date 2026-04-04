@@ -1,9 +1,11 @@
 package edu.uga.cs.countryquiz;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -35,5 +37,10 @@ public class ResultsFragment extends Fragment {
             ((TextView)view.findViewById(R.id.scoreTextView)).setText("Final Score: " + score + "/6");
             // Optionally show the quizId from the database
         }
+        Button homeBtn = view.findViewById(R.id.button3);
+        homeBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this.getActivity(), MainActivity.class);
+            startActivity(intent);
+        });
     }
 }
