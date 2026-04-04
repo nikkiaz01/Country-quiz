@@ -45,7 +45,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
      */
     @Override
     public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
-        // Bind the string data to the TextView
+        // binds the string data to the TextView
         String currentResult = historyData.get(position);
         holder.quizNumHolder.setText("Quiz " + (position+1) + ":");
         holder.historyTextView.setText(currentResult);
@@ -74,7 +74,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
          */
         public HistoryViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Find views inside the row layout
+            // find views inside the row layout
             historyTextView = itemView.findViewById(R.id.historyText);
             quizNumHolder = itemView.findViewById(R.id.textView2);
         }

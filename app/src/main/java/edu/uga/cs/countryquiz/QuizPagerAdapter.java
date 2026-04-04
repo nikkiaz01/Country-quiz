@@ -18,7 +18,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
  * - 1 results fragment
  */
 public class QuizPagerAdapter extends FragmentStateAdapter {
-    private long savedQuizId = -1;
+    private long savedQuizId = -1; //keep track of id to pass into resultsfragment
     /**
      * Constructor for the adapter.
      *
@@ -53,7 +53,7 @@ public class QuizPagerAdapter extends FragmentStateAdapter {
         if (position < 6) {
             return QuizFragment.newInstance(position);
         } else {
-            // PASS THE ID TO THE RESULTS FRAGMENT
+            // passes the id to new results fragment
             return ResultsFragment.newInstance(savedQuizId);
         }
     }

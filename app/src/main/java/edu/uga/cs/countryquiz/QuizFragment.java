@@ -85,15 +85,12 @@ public class QuizFragment extends Fragment {
                 RadioButton selected = view.findViewById(checkedId);
                 String selectedText = selected.getText().toString();
                 String correct = currentQuiz.getQuestions().get(questionNum).getCapital();
-
-                // FIX: Check if the string ends with the correct answer
-                // This avoids "Mali" matching "Somalia"
+                //checks on if it is a match since begins with an A. or B. so need endsWith method
                 int score = selectedText.endsWith(correct) ? 1 : 0;
-
                 if (activity != null) {
                     activity.updateMainScore(questionNum, score);
                     androidx.viewpager2.widget.ViewPager2 myPager = activity.findViewById(R.id.viewpager2);
-                    // FIX: Null check for pager
+                    // null check for pager
                     if (myPager != null) {
                         myPager.setUserInputEnabled(true);
                     }
@@ -120,7 +117,7 @@ public class QuizFragment extends Fragment {
         // Shuffle choices so the correct answer is not always in same position
         Collections.shuffle(options);
 
-        // Labels A, B, C
+        // set text of all radio buttons
         ((RadioButton)view.findViewById(R.id.radioButton)).setText("A. " + options.get(0));
         ((RadioButton)view.findViewById(R.id.radioButton2)).setText("B. " + options.get(1));
         ((RadioButton)view.findViewById(R.id.radioButton3)).setText("C. " + options.get(2));

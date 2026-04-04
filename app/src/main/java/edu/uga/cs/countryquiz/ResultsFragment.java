@@ -57,8 +57,9 @@ public class ResultsFragment extends Fragment {
         QuizActivity activity = (QuizActivity) getActivity();
         if (activity != null) {
             int score = activity.getTotalScore();
-            ((TextView)view.findViewById(R.id.scoreTextView)).setText("Final Score: " + score + "/6");
-            // Optionally show the quizId from the database
+            double percentage = (score * 100.0) / 6;
+            String percentString = String.format("%.1f%%", percentage);
+            ((TextView)view.findViewById(R.id.scoreTextView)).setText("Final Score: " + score + "/6 = " + percentString);
         }
         Button homeBtn = view.findViewById(R.id.button3);
         homeBtn.setOnClickListener(v -> {

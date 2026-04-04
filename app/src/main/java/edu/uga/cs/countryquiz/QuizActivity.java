@@ -1,6 +1,5 @@
 package edu.uga.cs.countryquiz;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -24,9 +23,9 @@ public class QuizActivity extends AppCompatActivity  {
 
     private int[] scores = new int[6];
     private Quiz currentQuiz;
-    private long savedQuizId = -1;
+    private long savedQuizId = -1; //quizid from storing
     private QuizPagerAdapter avpAdapter;
-    private CountriesData countriesData;
+    private CountriesData countriesData; //db helper
     private ViewPager2 pager;
 
     /**
@@ -42,7 +41,7 @@ public class QuizActivity extends AppCompatActivity  {
         countriesData = new CountriesData(this);
         pager = findViewById(R.id.viewpager2);
 
-        // CHECK IF WE ARE RESTORING
+        // To check if we are restoring
         if (savedInstanceState != null) {
             scores = savedInstanceState.getIntArray("saved_scores");
             currentQuiz = (Quiz) savedInstanceState.getSerializable("saved_quiz");
@@ -54,12 +53,25 @@ public class QuizActivity extends AppCompatActivity  {
             pager.setCurrentItem(currentPage, false);
             setupPageController();
 
-            Log.d("QuizActivity", "State Restored. Score: " + getTotalScore());
         } else {
             // No saved state? Load fresh from DB
             new InitialQuizLoader().execute();
         }
     }
+
+    /**
+     * Called when the activity is no longer visible to the user.
+     * This override ensures that the {@link CountriesData} database connection
+     * is safely closed.
+     */
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (countriesData != null) {
+            countriesData.close();
+        }
+    }
+
     /**
      * Saves quiz state before activity is destroyed (e.g., rotation).
      */
@@ -102,7 +114,7 @@ public class QuizActivity extends AppCompatActivity  {
      * Loads countries from database and generates quiz questions.
      * Runs in background thread.
      */
-    private class InitialQuizLoader extends AsyncTask<Void, Void, Quiz> {
+    private class InitialQuizLoader extends AsyncTask<Void, Quiz> {
         @Override
         protected Quiz doInBackground(Void... voids) {
             countriesData.open();
@@ -110,12 +122,12 @@ public class QuizActivity extends AppCompatActivity  {
             ArrayList<Country> allCountries = countriesData.retrieveAllCountries();
             // Generate quiz questions
             Quiz generatedQuiz = createQuestionsLogic(allCountries);
-            countriesData.close();
+            countriesData.close(); //makes sure it is closed
             return generatedQuiz;
         }
 
         @Override
-        protected void onPostExecute(Quiz quiz) {
+        protected void onPostExecute(Quiz quiz) { //creates adapter using new quiz
             currentQuiz = quiz;
             avpAdapter = new QuizPagerAdapter(QuizActivity.this);
             pager.setAdapter(avpAdapter);
@@ -138,11 +150,11 @@ public class QuizActivity extends AppCompatActivity  {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                if (position == 6) {
+                if (position == 6) { // able to navigate wherever once at end
                     pager.setUserInputEnabled(true);
                     if (!isSaved && currentQuiz != null) {
                         currentQuiz.setScore(getTotalScore());
-                        new SaveQuizTask().execute(currentQuiz);
+                        new SaveQuizTask().execute(currentQuiz); //save quiz in db
                         isSaved = true;
                     }
                 } else {
@@ -156,29 +168,27 @@ public class QuizActivity extends AppCompatActivity  {
     /**
      * Saves quiz result to database in background.
      */
-    private class SaveQuizTask extends AsyncTask<Quiz, Void, Long> {
+    private class SaveQuizTask extends AsyncTask<Quiz, Long> {
         @Override
         protected Long doInBackground(Quiz... quizzes) {
             try {
                 countriesData.open();
-                // Assuming storeQuizResult returns the 'long' row ID
-                return countriesData.storeQuizResult(quizzes[0]).getId();
+                return countriesData.storeQuizResult(quizzes[0]).getId(); //db returned id
             } catch (Exception e) {
-                Log.e("QuizActivity", "Save error: " + e.getMessage());
-                return -1L;
+                return -1L; //error so return -1
             } finally {
-                countriesData.close();
+                countriesData.close(); // close db no matter what
             }
         }
 
         @Override
         protected void onPostExecute(Long id) {
             savedQuizId = id;
+            //triggers result fragment to be generated using the correct quiz id
             if (avpAdapter != null) {
                 avpAdapter.setSavedQuizId(id);
                 avpAdapter.notifyItemChanged(6); // Refresh results page with ID
             }
-            Log.d("QuizActivity", "Quiz saved with ID: " + id);
         }
     }
 
@@ -215,7 +225,7 @@ public class QuizActivity extends AppCompatActivity  {
                     continue;
                 }
 
-                // Check if 'main' was used in a previous question
+                // Check if main country was used in a previous question
                 for (int x = 0; x < i; x++) {
                     if (countryCheck[x] != null && countryCheck[x].getCountryName().equals(main.getCountryName())) {
                         duplicateFound = true;
@@ -228,7 +238,7 @@ public class QuizActivity extends AppCompatActivity  {
             questionList.add(newQuestion);
         }
 
-        Quiz newQuiz = new Quiz(11111, String.format("%tF", new Date()), 0);
+        Quiz newQuiz = new Quiz(11111, String.format("%tF", new Date()), 0); //create new quiz with a fake id until stored in db
         newQuiz.setQuestions(questionList);
         return newQuiz;
     }

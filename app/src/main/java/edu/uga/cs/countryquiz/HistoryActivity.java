@@ -48,13 +48,27 @@ public class HistoryActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Initialize our NEW external adapter
+        // Initialize external adapter
         adapter = new HistoryAdapter(historyList);
         recyclerView.setAdapter(adapter);
 
         // Load data
         new LoadHistoryTask().execute();
     }
+
+    /**
+     * Called when the activity is no longer visible to the user.
+     * This override ensures that the {@link CountriesData} database connection
+     * is safely closed.
+     */
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (countriesData != null) {
+            countriesData.close();
+        }
+    }
+
     /**
      * Handles Action Bar back button behavior.
      *
@@ -62,7 +76,7 @@ public class HistoryActivity extends AppCompatActivity {
      */
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        getOnBackPressedDispatcher().onBackPressed();
         return true;
     }
     /**
@@ -101,7 +115,9 @@ public class HistoryActivity extends AppCompatActivity {
                 historyList.clear();
                 // Format each quiz result as a readable string
                 for (Quiz q : quizzes) {
-                    historyList.add("Date: " + q.getDate() + "\nScore: " + q.getScore() + " / 6");
+                    double percentage = (q.getScore() * 100.0) / 6;
+                    String percentString = String.format("%.1f%%", percentage); //so score is a %
+                    historyList.add("Date: " + q.getDate() + "\nScore: " + q.getScore() + " / 6 = " + percentString);
                 }
                 // Notify adapter that the data changed so RecyclerView refreshes
                 adapter.notifyDataSetChanged();
