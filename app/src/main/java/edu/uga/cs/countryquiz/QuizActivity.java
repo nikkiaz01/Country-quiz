@@ -13,7 +13,13 @@ import androidx.viewpager2.widget.ViewPager2;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
-
+/**
+ * QuizActivity manages the full quiz lifecycle.
+ * This activity is responsible for loading country data from
+ * database, generating quiz questions, displaying questions using ViewPager2,
+ * tracking user answers and calculating score, saving quiz results to database,
+ * and handling configuration changes (e.g., screen rotation)
+ */
 public class QuizActivity extends AppCompatActivity  {
 
     private int[] scores = new int[6];
@@ -23,6 +29,10 @@ public class QuizActivity extends AppCompatActivity  {
     private CountriesData countriesData;
     private ViewPager2 pager;
 
+    /**
+     * Called when activity is created.
+     * Handles restoring state OR loading new quiz.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +60,9 @@ public class QuizActivity extends AppCompatActivity  {
             new InitialQuizLoader().execute();
         }
     }
-
+    /**
+     * Saves quiz state before activity is destroyed (e.g., rotation).
+     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -61,28 +73,42 @@ public class QuizActivity extends AppCompatActivity  {
 
         Log.d("QuizActivity", "State Saved. Current Page: " + pager.getCurrentItem());
     }
-
+    /** Returns the current quiz. */
     public Quiz getCurrentQuiz() { return currentQuiz; }
-
+    /**
+     * Updates score for a specific question.
+     *
+     * @param index question index (0–5)
+     * @param score 1 if correct, 0 if incorrect
+     */
     public void updateMainScore(int index, int score) {
         if (index >= 0 && index < 6) {
             scores[index] = score;
             Log.d("QuizActivity", "Question " + index + " updated to: " + score);
         }
     }
-
+    /**
+     * Calculates total score.
+     *
+     * @return sum of all question scores
+     */
     public int getTotalScore() {
         int total = 0;
         for (int s : scores) total += s;
         return total;
     }
 
-    // --- STEP 1: LOAD THE QUIZ DATA ---
+    /**
+     * Loads countries from database and generates quiz questions.
+     * Runs in background thread.
+     */
     private class InitialQuizLoader extends AsyncTask<Void, Void, Quiz> {
         @Override
         protected Quiz doInBackground(Void... voids) {
             countriesData.open();
+            // Retrieve all countries
             ArrayList<Country> allCountries = countriesData.retrieveAllCountries();
+            // Generate quiz questions
             Quiz generatedQuiz = createQuestionsLogic(allCountries);
             countriesData.close();
             return generatedQuiz;
@@ -96,16 +122,23 @@ public class QuizActivity extends AppCompatActivity  {
             setupPageController();
         }
     }
-
+    /**
+     * Controls page navigation behavior.
+     *
+     * - Locks swipe during questions
+     * - Enables swipe on results page
+     * - Saves quiz when reaching results
+     */
     private void setupPageController() {
-        pager.setUserInputEnabled(false); // Lock initially
+        // Lock initially
+        pager.setUserInputEnabled(false);
         pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             private boolean isSaved = false;
 
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                if (position == 6) { // Landed on ResultsFragment
+                if (position == 6) {
                     pager.setUserInputEnabled(true);
                     if (!isSaved && currentQuiz != null) {
                         currentQuiz.setScore(getTotalScore());
@@ -120,7 +153,9 @@ public class QuizActivity extends AppCompatActivity  {
         });
     }
 
-    // --- STEP 2: SAVE TO DATABASE ---
+    /**
+     * Saves quiz result to database in background.
+     */
     private class SaveQuizTask extends AsyncTask<Quiz, Void, Long> {
         @Override
         protected Long doInBackground(Quiz... quizzes) {
@@ -147,7 +182,16 @@ public class QuizActivity extends AppCompatActivity  {
         }
     }
 
-    // --- HELPER: QUIZ GENERATION ---
+    /**
+     * Generates 6 unique quiz questions.
+     *
+     * Ensures:
+     * - No duplicate answers in a question
+     * - No duplicate main countries across questions
+     *
+     * @param countries list of all countries
+     * @return generated Quiz object
+     */
     public Quiz createQuestionsLogic(ArrayList<Country> countries) {
         ArrayList<Question> questionList = new ArrayList<>();
         Country[] countryCheck = new Country[6];

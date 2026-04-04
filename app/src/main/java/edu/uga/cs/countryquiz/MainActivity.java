@@ -12,12 +12,20 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
-
+/**
+ * MainActivity is the entry screen of the Country Quiz app.
+ */
 public class MainActivity extends AppCompatActivity {
 
     Button button2;
     Button historyBtn;
-
+    /**
+     * Called when the activity is first created.
+     * This method sets the layout, copies the database if needed,
+     * and sets up button click listeners for navigation.
+     *
+     * @param savedInstanceState previously saved state (if any)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
